@@ -109,6 +109,7 @@ public class algorithmos {
                 if(waiting.get(i).xronos_afixis<=xronos){
                     oures[waiting.get(i).proteraiotita-1].add(waiting.get(i));
                     waiting.remove(i);
+		    i--;
                 } 
             }
             run();
