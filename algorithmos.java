@@ -113,7 +113,6 @@ public class algorithmos {
             }
             run();
         }
-        run();
         printavgs(pinakas);
     }
     
