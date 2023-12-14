@@ -1,5 +1,6 @@
 # 1503-Project
 Ατομική Εργασία για Σχεδίαση Λειτουργικών Συστημάτων
+
 Ιωάννης Δήμτσιας iee2020227
 
 Η εργασία γράφτηκε σε Java. Τα αρχεία algorithmos.java(main) και diergasia.java πρέπει να είναι στο ίδιο Java Project (package Prosomiosi_Algorithmou_Dromologisis).
