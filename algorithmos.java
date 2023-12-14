@@ -18,66 +18,45 @@ public class algorithmos {
     static Queue<diergasia> q7 = new LinkedList<diergasia>();
     static ArrayList<diergasia> pinakas= new ArrayList<diergasia>();
     static Queue[] oures={q1,q2,q3,q4,q5,q6,q7};
-    static int xronos=-1,done=0;
-    
-    public static boolean check_if_all_done(Object[] qtocheck){
-            for(int i=0;i<qtocheck.length;i++){
-                diergasia tocheck= (diergasia)qtocheck[i];
-                if(tocheck.done==false){
-                        return false;
-                }
-            }
-            return true;
-    }
+    static int xronos=0,count=0;
     
     public static void run(){
-        for(int i=0;i<oures.length;i++){
-            if(oures[i].isEmpty()==false){
-                if(oures[i].size()==1){
-                    diergasia d = (diergasia)oures[i].remove();
-                    d.epistrofi=d.apokrisi+d.xronos_kataigismou;
-                    int toxronos=xronos+d.xronos_kataigismou;
-                    while(xronos<toxronos){
-                        xronos=xronos+enotita_xronou;
+        boolean exit_flag=false;
+        int index=0;
+        while(exit_flag==false){
+            if(oures[index].isEmpty()==false){
+                diergasia d = (diergasia)oures[index].poll();
+                int time_given=0;
+                while(d.done==false && time_given<enotita_xronou){
+                    if(d.xronos_kme==0){
+                        d.apokrisi=xronos-d.xronos_afixis;
+                    }
+                    d.xronos_kme++;
+                    xronos++;
+                    time_given++;
+                    if(d.xronos_kme==d.xronos_kataigismou){
+                        d.done=true;
+                        d.epistrofi=xronos-d.xronos_afixis;
+                        count++;
                     }
                 }
+                if(d.done==false){
+                    oures[index].add(d);
+                }
+                exit_flag=true;
+            }
+            else{
+                if(index<6){
+                    index++;
+                }
                 else{
-                    //  Third Step: If there are more than one in the same priority queue, 
-                    //  they will get time in CPU following the Round-Robin Algorithm.
-                    roundrobin(oures[i]);
+                    exit_flag=true;
+                    xronos++;
                 }
             }
         }
     }
     
-    public static void roundrobin(Queue q){
-        int index=0;
-        LinkedList<Queue> oures_rr= new LinkedList();
-        oures_rr.add(q);
-        Object[] qtocheck = q.toArray();
-        while(check_if_all_done(qtocheck)==false){
-            if(oures_rr.get(index).isEmpty()==true){
-                index++;
-            }
-            diergasia d = (diergasia)oures_rr.get(index).poll();
-            d.xronos_kme=d.xronos_kme+enotita_xronou;
-            xronos=xronos+enotita_xronou;
-            if(d.xronos_kme>=d.xronos_kataigismou){
-                    d.done=true;
-                    d.epistrofi=xronos-d.xronos_afixis-(d.xronos_kme-d.xronos_kataigismou);
-            }
-            else{
-                if(oures_rr.size()<=index+1){
-                    Queue<diergasia> nextq = new LinkedList();
-                    oures_rr.add(nextq);
-                    nextq.add(d);
-                }
-                else{
-                    oures_rr.get(index+1).add(d);
-                }
-            }
-        }   
-    }
     
     public static void printavgs(ArrayList<diergasia> pinakas){
         System.out.println("\tMESOS OROS APOKRISIS DIERGASION");
@@ -103,6 +82,7 @@ public class algorithmos {
         }
         pinakas.clear();
         xronos=0;
+        count=0;
         System.out.println("--------------------------------------------------");
         System.out.println("\tPROSOMIOSI ME TYXAIES TIMES");
         System.out.println("--------------------------------------------------");
@@ -123,25 +103,15 @@ public class algorithmos {
             System.out.println("Arithmos Proteraiotitas:"+p);
             pinakas.add(d);
         }
-        int count=0;
-        while(count!=pinakas.size()){
-            xronos++;
-            for(i=0;i<pinakas.size();i++){
-                if(pinakas.get(i).xronos_afixis<=xronos && pinakas.get(i).entered==false){
-                    pinakas.get(i).apokrisi=xronos-pinakas.get(i).xronos_afixis;
-                    pinakas.get(i).xronos_kme=pinakas.get(i).xronos_kme+enotita_xronou;
-                    count++;
-                    xronos=xronos+enotita_xronou;
-                    pinakas.get(i).entered=true;
-                    if(pinakas.get(i).xronos_kme>=pinakas.get(i).xronos_kataigismou){
-                        pinakas.get(i).done=true;
-                        pinakas.get(i).epistrofi=pinakas.get(i).apokrisi+pinakas.get(i).xronos_kataigismou;
-                    }
-                    else{
-                        oures[pinakas.get(i).proteraiotita-1].add(pinakas.get(i));
-                    }
-                }
+        ArrayList<diergasia> waiting= new ArrayList<>(pinakas);
+        while(count<pinakas.size()){
+            for(i=0;i<waiting.size();i++){
+                if(waiting.get(i).xronos_afixis<=xronos){
+                    oures[waiting.get(i).proteraiotita-1].add(waiting.get(i));
+                    waiting.remove(i);
+                } 
             }
+            run();
         }
         run();
         printavgs(pinakas);
@@ -176,33 +146,17 @@ public class algorithmos {
             diergasia d= new diergasia(xa,xk,p);
             pinakas.add(d);
 	}
-        //  First step: The ones that arrive get time in CPU.If they don't get completed, 
-        //  they get added to their selected priority queue(1-7).
-        int count=0;
-        while(count!=pinakas.size()){
-            xronos++;
-            for(i=0;i<pinakas.size();i++){
-                if(pinakas.get(i).xronos_afixis<=xronos && pinakas.get(i).entered==false){
-                    pinakas.get(i).apokrisi=xronos-pinakas.get(i).xronos_afixis;
-                    pinakas.get(i).xronos_kme=pinakas.get(i).xronos_kme+enotita_xronou;
-                    count++;
-                    xronos=xronos+enotita_xronou;
-                    pinakas.get(i).entered=true;
-                    if(pinakas.get(i).xronos_kme>=pinakas.get(i).xronos_kataigismou){
-                        pinakas.get(i).done=true;
-                        pinakas.get(i).epistrofi=pinakas.get(i).apokrisi+pinakas.get(i).xronos_kataigismou;
-                    }
-                    else{
-                        oures[pinakas.get(i).proteraiotita-1].add(pinakas.get(i));
-                    }
-                }
+        ArrayList<diergasia> waiting= new ArrayList<>(pinakas);
+        while(count<pinakas.size()){
+            for(i=0;i<waiting.size();i++){
+                if(waiting.get(i).xronos_afixis<=xronos){
+                    oures[waiting.get(i).proteraiotita-1].add(waiting.get(i));
+                    waiting.remove(i);
+                    i--;
+                } 
             }
+            run();
         }
-        //  Second Step: The ones that are left, are in their selected queues. 
-        //  Now they will get time in CPU according to their priority.
-        run();
-        
-        //  Print Results (Print the Average Responce Time and Average Turn-Around Time for each one)
         printavgs(pinakas);
         String a;
         do{
@@ -218,11 +172,8 @@ public class algorithmos {
                 a=s.nextLine();
             }
             if(a.equals("Nai")){
-                // After the first run is finished, the user has the option to run the algorithm again
-                // using random values, as long as they respond "Nai".
                 random();
             }
         }while(a.equals("Nai"));
-    }
-    
+    }  
 }
