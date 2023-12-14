@@ -9,7 +9,6 @@ public class diergasia{
     int apokrisi=0;
     int epistrofi=0;
     boolean done=false;
-    boolean entered=false;
     
     public diergasia(){};
     public diergasia(int xa, int xk,int p){
